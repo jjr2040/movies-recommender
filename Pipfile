@@ -12,6 +12,7 @@ notebook = "*"
 pylint = "*"
 numpy = "*"
 neo4j = "*"
+neomodel = "*"
 
 [requires]
 python_version = "3.8"
