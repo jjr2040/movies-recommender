@@ -13,6 +13,7 @@ pylint = "*"
 numpy = "*"
 neo4j = "*"
 neomodel = "*"
+sparqlwrapper = "*"
 
 [requires]
 python_version = "3.8"

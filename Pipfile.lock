@@ -1,7 +1,7 @@
 {
     "_meta": {
         "hash": {
-            "sha256": "b9452b0070d8df51df2dbbaa6aa04a187fdb5a1b6c1d18458fe5ee3eb0dca001"
+            "sha256": "98666056919d2b57aba01387d108558e1f0644526aba9c4c4418252975ca8849"
         },
         "pipfile-spec": 6,
         "requires": {
@@ -108,6 +108,13 @@
                 "sha256:eb2e116e75ecef9d4d228fdc66af54269afa26ab4463042e33785b887c628ba8"
             ],
             "version": "==0.2.0"
+        },
+        "isodate": {
+            "hashes": [
+                "sha256:2e364a3d5759479cdb2d37cce6b9376ea504db2ff90252a2e5b7cc89cc9ff2d8",
+                "sha256:aa4d33c06640f5352aca96e4b81afd8ab3b47337cc12089822d6f322ac772c81"
+            ],
+            "version": "==0.6.0"
         },
         "isort": {
             "hashes": [
@@ -463,6 +470,13 @@
             ],
             "version": "==19.0.1"
         },
+        "rdflib": {
+            "hashes": [
+                "sha256:78149dd49d385efec3b3adfbd61c87afaf1281c30d3fcaf1b323b34f603fb155",
+                "sha256:88208ea971a87886d60ae2b1a4b2cdc263527af0454c422118d43fe64b357877"
+            ],
+            "version": "==5.0.0"
+        },
         "send2trash": {
             "hashes": [
                 "sha256:60001cc07d707fe247c94f74ca6ac0d3255aabcb930529690897ca2a39db28b2",
@@ -476,6 +490,15 @@
                 "sha256:8f3cd2e254d8f793e7f3d6d9df77b92252b52637291d0f0da013c76ea2724b6c"
             ],
             "version": "==1.14.0"
+        },
+        "sparqlwrapper": {
+            "hashes": [
+                "sha256:357ee8a27bc910ea13d77836dbddd0b914991495b8cc1bf70676578155e962a8",
+                "sha256:c7f9c9d8ebb13428771bc3b6dee54197422507dcc3dea34e30d5dcfc53478dec",
+                "sha256:d6a66b5b8cda141660e07aeb00472db077a98d22cb588c973209c7336850fb3c"
+            ],
+            "index": "pypi",
+            "version": "==1.8.5"
         },
         "sqlparse": {
             "hashes": [
