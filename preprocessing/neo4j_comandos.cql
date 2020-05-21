@@ -54,6 +54,13 @@ WHERE m.movieId IN u.moviesIds
 CREATE (u)-[r:SEES{rating:u.ratings[1+[x IN range(0,size(u.ratings)-1) WHERE u.moviesIds[x] = m.movieId][0]],timestamp:u.timestamps[1+[y IN range(0,size(u.timestamps)-1) WHERE u.moviesIds[y] = m.movieId][0]]}]->(m)
 RETURN r
 
+
+//Una vez creadas las relaciones, eliminar los atributos del usuario
+MATCH  (u:User)
+REMOVE u.ratings
+REMOVE u.timestamps
+REMOVE u.moviesIds
+RETURN u
 ------------------------------COMANDOS EXTRAS--------------------------------
 
 //Comando para revisar duplicados
@@ -70,6 +77,5 @@ MATCH (n) DETACH DELETE n
 //Elimar relaciones de un tipo
 MATCH ()-[r:SEES]->()  
 DELETE r
-
 
 
