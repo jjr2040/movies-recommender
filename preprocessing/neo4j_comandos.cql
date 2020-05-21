@@ -37,7 +37,7 @@ FOREACH (x IN CASE WHEN movie.studios IS NULL THEN [] ELSE [1] END |
 FOREACH (y IN split(movie.studios,"|")| MERGE (st:Studio {studio: split(y,",")[0]})
 CREATE (st)-[:PRODUCES]->(m)))
 FOREACH (x IN CASE WHEN movie.runtime IS NULL THEN [] ELSE [1] END |
-  SET m.runtime=toString(toInteger(movie.runtime)/60)
+  SET m.runtime=toInteger(movie.runtime)/60
 )
 
 //Comando para revisar duplicados

@@ -1,7 +1,7 @@
 {
     "_meta": {
         "hash": {
-            "sha256": "98666056919d2b57aba01387d108558e1f0644526aba9c4c4418252975ca8849"
+            "sha256": "7a7011941790f600542ee273a2033c7bdb2e652b6e7cf4faa22adace08083857"
         },
         "pipfile-spec": 6,
         "requires": {
@@ -222,6 +222,10 @@
             ],
             "version": "==1.1.1"
         },
+        "master": {
+            "git": "https://github.com/JVemmer/neomodel.git",
+            "ref": "7d4e282537b1ba761acae36c330c321c07e059c6"
+        },
         "mccabe": {
             "hashes": [
                 "sha256:ab8a6258860da4b6677da4bd2fe5dc2c659cff31b3ee4f7f5d64e79735b80d42",
@@ -319,10 +323,10 @@
         },
         "packaging": {
             "hashes": [
-                "sha256:3c292b474fda1671ec57d46d739d072bfd495a4f51ad01a055121d81e952b7a3",
-                "sha256:82f77b9bee21c1bafbf35a84905d604d5d1223801d639cf3ed140bd651c08752"
+                "sha256:4357f74f47b9c12db93624a82154e9b120fa8293699949152b22065d556079f8",
+                "sha256:998416ba6962ae7fbd6596850b80e17859a5753ba17c32284f67bfff33784181"
             ],
-            "version": "==20.3"
+            "version": "==20.4"
         },
         "pandas": {
             "hashes": [
