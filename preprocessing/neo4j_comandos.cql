@@ -40,6 +40,22 @@ FOREACH (x IN CASE WHEN movie.runtime IS NULL THEN [] ELSE [1] END |
   SET m.runtime=toInteger(movie.runtime)/60
 )
 
+
+//Cargar archivo de ratings
+CREATE CONSTRAINT ON (u:User) ASSERT u.userId IS UNIQUE;
+
+LOAD CSV WITH HEADERS FROM "file:///prueba.csv" AS rating
+CREATE (u:User {userId:rating.userId, moviesIds:split(rating.moviesId,"|"),ratings:split(rating.ratings,"|"),timestamps:split(rating.timestamps,"|")})
+
+
+//Crear relaciones de usuarios a peliculas
+MATCH (u:User),(m:Movie)
+WHERE m.movieId IN u.moviesIds
+CREATE (u)-[r:SEES{rating:u.ratings[1+[x IN range(0,size(u.ratings)-1) WHERE u.moviesIds[x] = m.movieId][0]],timestamp:u.timestamps[1+[y IN range(0,size(u.timestamps)-1) WHERE u.moviesIds[y] = m.movieId][0]]}]->(m)
+RETURN r
+
+------------------------------COMANDOS EXTRAS--------------------------------
+
 //Comando para revisar duplicados
 MATCH  (g:Director) WHERE g.director="Abel Ferrara"
 RETURN count(g) as count
@@ -51,7 +67,9 @@ RETURN Movie.title
 //Comando para borrar todo
 MATCH (n) DETACH DELETE n
 
-
+//Elimar relaciones de un tipo
+MATCH ()-[r:SEES]->()  
+DELETE r
 
 
 
