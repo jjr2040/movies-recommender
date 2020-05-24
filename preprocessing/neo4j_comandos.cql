@@ -54,7 +54,50 @@ WHERE m.movieId IN u.moviesIds
 CREATE (u)-[r:SEES{rating:u.ratings[1+[x IN range(0,size(u.ratings)-1) WHERE u.moviesIds[x] = m.movieId][0]],timestamp:u.timestamps[1+[y IN range(0,size(u.timestamps)-1) WHERE u.moviesIds[y] = m.movieId][0]]}]->(m)
 RETURN r
 
+
+LOAD CSV WITH HEADERS FROM "file:///ratings.csv" AS ratings
+MATCH (from:User {userId: ratings.userId}),(to:Movie {movieId:ratings.movieId})
+CREATE (from)-[rel:RATED  {rating: ratings.rating }]->(to)
+
+-----------------------------Cargar usuarios y su relacion--------------------------------
+
+CREATE CONSTRAINT ON (u:User) ASSERT u.userId IS UNIQUE;
+
+LOAD CSV WITH HEADERS FROM "file:///unique_users.csv" AS userId
+CREATE (u:User {userId:userId.userId})
+
+LOAD CSV WITH HEADERS FROM "file:///ratings.csv" AS rating
+MATCH (u:User) WHERE u.userId=rating.userId
+MATCH (m:Movie) WHERE m.movieId=rating.movieId
+MERGE (u)-[rel:RATED {rating: rating.rating, timestamp: rating.timestamp} ]->(m)
+CREATE (u)-[rel:RATED {rating: rating.rating, timestamp: rating.timestamp} ]->(m)
+
+LOAD CSV WITH HEADERS FROM "file:///ratings.csv" AS rating
+MATCH (u:User {userId: rating.userId}), (m:Movie {movieId: rating.movieId})
+MERGE (u)-[rel:RATED {rating: rating.rating, timestamp: rating.timestamp} ]->(m)
+
+:auto USING PERIODIC COMMIT 500
+LOAD CSV WITH HEADERS FROM "file:///ratings.csv" AS rating
+MATCH (m:Movie)
+WHERE m.movieId = rating.movieId
+MATCH (u:User)
+WHERE u.userId = rating.userId
+MERGE (u)-[rel:RATED {rating: rating.rating, timestamp: rating.timestamp} ]->(m)
+RETURN count(rel)
+
 ------------------------------COMANDOS EXTRAS--------------------------------
+
+// Pearson similarity
+MATCH (p1:User {name: 'Cynthia Freeman'})-[x:RATED]->(movie:Movie)
+WITH p1, algo.similarity.asVector(movie, x.rating) AS p1Vector
+MATCH (p2:User)-[x2:RATED]->(movie:Movie) WHERE p2 <> p1
+WITH p1, p2, p1Vector, algo.similarity.asVector(movie, x2.rating) AS p2Vector
+WHERE size(apoc.coll.intersection([v in p1Vector | x.category], [v in p2Vector | v.category])) > 10
+RETURN p1.name AS from,
+       p2.name AS to,
+       algo.similarity.pearson(p1Vector, p2Vector, {vectorType: "maps"}) AS similarity
+ORDER BY similarity DESC
+LIMIT 100
 
 //Comando para revisar duplicados
 MATCH  (g:Director) WHERE g.director="Abel Ferrara"
