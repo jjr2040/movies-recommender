@@ -54,10 +54,12 @@ WHERE m.movieId IN u.moviesIds
 CREATE (u)-[r:SEES{rating:u.ratings[1+[x IN range(0,size(u.ratings)-1) WHERE u.moviesIds[x] = m.movieId][0]],timestamp:u.timestamps[1+[y IN range(0,size(u.timestamps)-1) WHERE u.moviesIds[y] = m.movieId][0]]}]->(m)
 RETURN r
 
-
-LOAD CSV WITH HEADERS FROM "file:///ratings.csv" AS ratings
-MATCH (from:User {userId: ratings.userId}),(to:Movie {movieId:ratings.movieId})
-CREATE (from)-[rel:RATED  {rating: ratings.rating }]->(to)
+//Una vez creadas las relaciones, eliminar los atributos del usuario
+MATCH  (u:User)
+REMOVE u.ratings
+REMOVE u.timestamps
+REMOVE u.moviesIds
+RETURN u
 
 -----------------------------Cargar usuarios y su relacion--------------------------------
 
@@ -65,16 +67,6 @@ CREATE CONSTRAINT ON (u:User) ASSERT u.userId IS UNIQUE;
 
 LOAD CSV WITH HEADERS FROM "file:///unique_users.csv" AS userId
 CREATE (u:User {userId:userId.userId})
-
-LOAD CSV WITH HEADERS FROM "file:///ratings.csv" AS rating
-MATCH (u:User) WHERE u.userId=rating.userId
-MATCH (m:Movie) WHERE m.movieId=rating.movieId
-MERGE (u)-[rel:RATED {rating: rating.rating, timestamp: rating.timestamp} ]->(m)
-CREATE (u)-[rel:RATED {rating: rating.rating, timestamp: rating.timestamp} ]->(m)
-
-LOAD CSV WITH HEADERS FROM "file:///ratings.csv" AS rating
-MATCH (u:User {userId: rating.userId}), (m:Movie {movieId: rating.movieId})
-MERGE (u)-[rel:RATED {rating: rating.rating, timestamp: rating.timestamp} ]->(m)
 
 :auto USING PERIODIC COMMIT 500
 LOAD CSV WITH HEADERS FROM "file:///ratings.csv" AS rating
@@ -113,6 +105,5 @@ MATCH (n) DETACH DELETE n
 //Elimar relaciones de un tipo
 MATCH ()-[r:SEES]->()  
 DELETE r
-
 
 
