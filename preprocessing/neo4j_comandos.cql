@@ -74,7 +74,7 @@ MATCH (m:Movie)
 WHERE m.movieId = rating.movieId
 MATCH (u:User)
 WHERE u.userId = rating.userId
-MERGE (u)-[rel:RATED {rating: toFloat(rating.rating), timestamp: toInt(rating.timestamp)} ]->(m)
+MERGE (u)-[rel:RATED {rating: toFloat(rating.rating), timestamp: toInteger(rating.timestamp)} ]->(m)
 RETURN count(rel)
 
 ------------------------------COMANDOS EXTRAS--------------------------------
