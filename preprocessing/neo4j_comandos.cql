@@ -74,22 +74,69 @@ MATCH (m:Movie)
 WHERE m.movieId = rating.movieId
 MATCH (u:User)
 WHERE u.userId = rating.userId
-MERGE (u)-[rel:RATED {rating: rating.rating, timestamp: rating.timestamp} ]->(m)
+MERGE (u)-[rel:RATED {rating: toFloat(rating.rating), timestamp: toInt(rating.timestamp)} ]->(m)
 RETURN count(rel)
 
 ------------------------------COMANDOS EXTRAS--------------------------------
 
-// Pearson similarity
-MATCH (p1:User {name: 'Cynthia Freeman'})-[x:RATED]->(movie:Movie)
-WITH p1, algo.similarity.asVector(movie, x.rating) AS p1Vector
-MATCH (p2:User)-[x2:RATED]->(movie:Movie) WHERE p2 <> p1
-WITH p1, p2, p1Vector, algo.similarity.asVector(movie, x2.rating) AS p2Vector
-WHERE size(apoc.coll.intersection([v in p1Vector | x.category], [v in p2Vector | v.category])) > 10
-RETURN p1.name AS from,
-       p2.name AS to,
-       algo.similarity.pearson(p1Vector, p2Vector, {vectorType: "maps"}) AS similarity
+// Ratings to float
+MATCH (user:User)-[rated:RATED]->(movie:Movie)
+SET rated.rating = toFloat(rated.rating)
+
+// GDC Alg
+MATCH (p:User), (m:Movie)
+OPTIONAL MATCH (p)-[rated:RATED]->(m)
+WITH {item:id(p), weights: collect(coalesce(rated.rating, gds.util.NaN()))} AS userData
+WITH collect(userData) AS data
+CALL gds.alpha.similarity.pearson.stream({
+ nodeProjection: '*',
+ relationshipProjection: '*',
+ data: data,
+ topK: 3,
+ similarityCutoff: 0.1
+})
+YIELD item1, item2, count1, count2, similarity
+RETURN gds.util.asNode(item1).userId AS from, gds.util.asNode(item2).userId AS to, similarity
 ORDER BY similarity DESC
-LIMIT 100
+
+// GDC Algoritmo Write (NO corre por memoria)
+MATCH (p:Person), (m:Movie)
+OPTIONAL MATCH (p)-[rated:RATED]->(m)
+WITH {item: id(p), weights: collect(coalesce(rated.rating, gds.util.NaN()))} AS userData
+WITH collect(userData) AS data
+CALL gds.alpha.similarity.pearson.write({
+ nodeProjection: '*',
+ relationshipProjection: '*',
+ data: data,
+ topK: 3,
+ similarityCutoff: 0.1
+})
+YIELD nodes, similarityPairs, writeRelationshipType, writeProperty, min, max, mean, stdDev, p25, p50, p75, p90, p95, p99, p999, p100
+RETURN nodes, similarityPairs, writeRelationshipType, writeProperty, min, max, mean, p95
+
+// GDC Algoritmo light
+WITH "MATCH (user:User)-[rated:RATED]->(movie: Movie)
+      OPTIONAL MATCH (user)-[rated:RATED]->(movie)
+      RETURN id(user) AS item, id(movie) AS category, rated.rating AS weight" AS query
+CALL gds.alpha.similarity.pearson.write({
+  nodeProjection: '*',
+  relationshipProjection: '*',
+  data: query,
+  graph: 'cypher',
+  topK: 3,
+  similarityCutoff: 0.1
+})
+YIELD nodes, similarityPairs, writeRelationshipType, writeProperty, min, max, mean, stdDev, p25, p50, p75, p90, p95, p99, p999, p100
+RETURN nodes, similarityPairs, writeRelationshipType, writeProperty, min, max, mean, p95
+
+// Normal Collaborative search
+MATCH (tom:Person {name: 'Tom Hanks'})-[:ACTED_IN]->(movie1:Movie)<-[:ACTED_IN]-(coActor:Person)-[:ACTED_IN]->(movie2:Movie)<-[:ACTED_IN]-(cruise:Person {name: 'Tom Cruise'})
+WHERE NOT (tom)-[:ACTED_IN]->(:Movie)<-[:ACTED_IN]-(cruise)
+RETURN tom, movie1, coActor, movie2, cruise
+
+MATCH (u1: User { userId: '282356'})-[r1:RATED]->(m1: Movie)<-[r2:RATED]-(u2: User)-[r3:RATED]->(m2: Movie)
+WHERE NOT(u1)-[:RATED]->(m2) AND m1 <> m2 AND toFloat(r1.rating) > 4 AND r2 > 4 AND r3.rating > 4
+RETURN u1.userId AS FirstUser, u2.userId AS SeconUser, m1.title AS CommonMovie, m2.title AS RecommendedMovie LIMIT 50
 
 //Comando para revisar duplicados
 MATCH  (g:Director) WHERE g.director="Abel Ferrara"
