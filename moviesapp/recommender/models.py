@@ -18,7 +18,7 @@ class Country(StructuredNode):
 
 class Actor(StructuredNode):
     actor = StringProperty(unique_index=True, required=True)
-    acted_in = RelationshipTo('Movie', 'ACT')
+    acted_in = RelationshipTo('Movie', 'ACTS')
 
 
 class Gender(StructuredNode):

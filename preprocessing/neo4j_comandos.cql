@@ -27,8 +27,8 @@ FOREACH (x IN CASE WHEN movie.genres IS NULL THEN [] ELSE [1] END |
 FOREACH (y IN split(movie.genres,"|")| MERGE (g:Gender {gender: split(y,",")[0]})
 CREATE (m)-[:IS_CLASSIFIED_AS]->(g)))
 FOREACH (x IN CASE WHEN movie.starring IS NULL THEN [] ELSE [1] END |
-FOREACH (y IN split(movie.starring,"|")| MERGE (s:Actor {actor: split(y,",")[0]})
- CREATE (a)-[:ACT]->(m)
+FOREACH (y IN split(movie.starring,"|")| MERGE (a:Actor {actor: split(y,",")[0]})
+ CREATE (a)-[:ACTS]->(m)
 ))
 FOREACH (x IN CASE WHEN movie.languagues IS NULL THEN [] ELSE [1] END |
 FOREACH (y IN split(movie.languagues,"|")| MERGE (l:Language {language: split(y,",")[0]})
@@ -65,6 +65,7 @@ RETURN u
 
 CREATE CONSTRAINT ON (u:User) ASSERT u.userId IS UNIQUE;
 
+// WARNING: El archivo unique_users necesita un header con nombre userId
 LOAD CSV WITH HEADERS FROM "file:///unique_users.csv" AS userId
 CREATE (u:User {userId:userId.userId})
 
