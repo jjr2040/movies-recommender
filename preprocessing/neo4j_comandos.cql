@@ -27,7 +27,7 @@ FOREACH (x IN CASE WHEN movie.genres IS NULL THEN [] ELSE [1] END |
 FOREACH (y IN split(movie.genres,"|")| MERGE (g:Gender {gender: split(y,",")[0]})
 CREATE (m)-[:IS_CLASSIFIED_AS]->(g)))
 FOREACH (x IN CASE WHEN movie.starring IS NULL THEN [] ELSE [1] END |
-FOREACH (y IN split(movie.starring,"|")| MERGE (s:Actor {actor: split(y,",")[0]})
+FOREACH (y IN split(movie.starring,"|")| MERGE (a:Actor {actor: split(y,",")[0]})
  CREATE (a)-[:ACT]->(m)
 ))
 FOREACH (x IN CASE WHEN movie.languagues IS NULL THEN [] ELSE [1] END |
