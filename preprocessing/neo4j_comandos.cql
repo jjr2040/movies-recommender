@@ -134,7 +134,7 @@ MATCH (tom:Person {name: 'Tom Hanks'})-[:ACTED_IN]->(movie1:Movie)<-[:ACTED_IN]-
 WHERE NOT (tom)-[:ACTED_IN]->(:Movie)<-[:ACTED_IN]-(cruise)
 RETURN tom, movie1, coActor, movie2, cruise
 
-MATCH (u1: User { userId: '282356'})-[r1:RATED]->(m1: Movie)<-[r2:RATED]-(u2: User)-[r3:RATED]->(m2: Movie)
+MATCH (u1: User { userId: '282356'})-[r1:RATED]->(m1: Movie)<-[r2:RATED]-(u2: User)-[r3:RATED]->(m2: Movie)<-[:PRODUCES]-(studio:Studio)-[:PRODUCES]->(m1)
 WHERE NOT(u1)-[:RATED]->(m2) AND m1 <> m2 AND toFloat(r1.rating) > 4 AND toFloat(r2.rating) > 4 AND toFloat(r3.rating) > 4
 RETURN u1.userId AS FirstUser, u2.userId AS SeconUser, m1.title AS CommonMovie, m2.title AS RecommendedMovie LIMIT 50
 
