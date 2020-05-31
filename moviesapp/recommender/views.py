@@ -1,5 +1,6 @@
 from django.shortcuts import render
 from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
+from django.http import JsonResponse
 
 from .models import User
 
@@ -25,3 +26,12 @@ def index(request):
         users = paginator.page(paginator.num_pages)
 
     return render(request, 'index.html', { 'users': users })
+
+def add_user(request):
+    global user_list
+    new_user = User(userId=str(len(user_list) + 1))
+    new_user.save()
+
+    user_list.append(new_user)
+    data = { 'allright': True, 'userId': new_user.userId }
+    return JsonResponse(data)

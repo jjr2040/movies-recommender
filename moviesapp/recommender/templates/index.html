@@ -24,7 +24,7 @@
             <h2 class="mt-1">Usuarios</h2>
         </div>
         <div class="col-sm-4">
-            <a class="btn btn-primary pull-right">Agregar usuario</a>
+          <a id="agregarUsuarioBtn" class="btn btn-primary pull-right">Agregar usuario</a>
         </div>
     </div>
     <div class="row">
@@ -82,4 +82,22 @@
         </div>
     </div>
 </div>
+{% endblock %}
+{% block js %}
+<script>
+  $("#agregarUsuarioBtn").click(function () {
+
+    $.ajax({
+      url: 'addUser',
+      dataType: 'json',
+      success: function (data) {
+        if (data.allright) {
+          alert("Usuario creado con Id: " + data.userId);
+          window.location.href = '/';
+        }
+      }
+    });
+
+  });
+</script>
 {% endblock %}
