@@ -1,0 +1,46 @@
+{% extends "base.html" %}
+
+{% block title %}Recomendaciones{% endblock %}
+
+{% block content %}
+
+<div class="row">
+    <div class="col-sm-8 pl-0">
+        <h1 class="mt-5">Sistemas de Recomendación - Taller 3</h1>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-sm-8 pl-0">
+        <h2 class="mt-1">Películas recomendadas</h2>
+    </div>
+</div>
+
+<div class="row">
+    <table class="table table-striped">
+      <thead>
+        <tr>
+          <th scope="col">Título</th>
+          <th scope="col">Género</th>
+          <th scope="col">País</th>
+          <th scope="col">Lenguaje</th>
+          <th scope="col">Duración (minutos)</th>
+          <th scope="col">Dbpedia link</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for movie in movies %}
+        <tr>
+            <td>{{movie.title}}</td>
+            <td>{{movie.gender_names}}</td>
+            <td>{{movie.country_names}}</td>
+            <td>{{movie.language_names}}</td>
+            <td>{{movie.runtime}}</td>
+            <td><a href="{{movie.dbpediaLink}}">Ver en DBPedia</a></td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+</div>
+
+{% endblock %}

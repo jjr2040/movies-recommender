@@ -41,7 +41,7 @@
                 <td>{{user.userId}}</td>
                 <td style="min-width: 200px;" class="pull-right">
                     <a class="btn btn-primary" href="#" >Ratings</a>
-                    <a class="btn btn-primary" href="#" >Recomendaciones</a>
+                    <a class="btn btn-primary" href="{% url 'movie_recomendations' user.userId %}" >Recomendaciones</a>
                 </td>
             </tr>
             {% endfor %}

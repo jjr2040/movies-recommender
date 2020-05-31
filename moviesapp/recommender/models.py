@@ -30,6 +30,7 @@ class Director(StructuredNode):
     directorUri = StringProperty(unique_index=True)
     directed = RelationshipTo('Movie', 'DIRECTS')
 
+
 class Language(StructuredNode):
     language = StringProperty(unique_index=True, required=True)
 
@@ -42,6 +43,21 @@ class Movie(StructuredNode):
     made_in = RelationshipTo('Country', 'MADE_IN')
     is_classified_as = RelationshipTo('Gender', 'IS_CLASSIFIED_AS')
     is_available_in = RelationshipTo('Language', 'IS_AVAILABLE')
+
+    @property
+    def gender_names(self):
+        genders_list = list(self.is_classified_as.all())
+        return ', '.join(list(map(lambda x: x.gender, genders_list))) 
+
+    @property
+    def country_names(self):
+        country_list = list(self.made_in.all())
+        return ', '.join(list(map(lambda x: x.country, country_list)))
+
+    @property
+    def language_names(self):
+        language_list = list(self.is_available_in.all())
+        return ', '.join(list(map(lambda x: x.language, language_list)))  
 
 
 class Studio(StructuredNode):
