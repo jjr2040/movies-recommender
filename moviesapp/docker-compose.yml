@@ -1,0 +1,39 @@
+version: '3'
+
+services:
+  web:
+    build: .
+    command: python manage.py runserver 0.0.0.0:8000
+    volumes:
+      - .:/code
+    ports:
+      - "80:8000"
+    depends_on:
+      - neo4j
+  neo4j:
+    image: neo4j:4.0.3
+    hostname: neo4j
+    container_name: neo4j
+    ports: 
+      - "7474:7474"
+      - "7687:7687"
+    volumes: 
+      - db-data:/neo4j/data
+      - ./neo4j/import:/var/lib/neo4j/import
+      - ./neo4j/logs:/logs
+      - ./neo4j/plugins:/plugins
+    environment: 
+      NEO4J_AUTH: neo4j/password
+      NEO4J_dbms_memory_pagecache_size: 1G
+  # mongo:
+  #   image: mongo
+  #   ports:
+  #     - "27017:27017"
+  #   volumes: 
+  #     - db-data:/data/db
+  #     - ./data:/fixtures
+
+# networks:
+#   backend:
+volumes:
+  db-data:

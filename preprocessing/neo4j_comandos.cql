@@ -130,14 +130,14 @@ CALL gds.alpha.similarity.pearson.write({
 YIELD nodes, similarityPairs, writeRelationshipType, writeProperty, min, max, mean, stdDev, p25, p50, p75, p90, p95, p99, p999, p100
 RETURN nodes, similarityPairs, writeRelationshipType, writeProperty, min, max, mean, p95
 
-// Normal Collaborative search
-MATCH (tom:Person {name: 'Tom Hanks'})-[:ACTED_IN]->(movie1:Movie)<-[:ACTED_IN]-(coActor:Person)-[:ACTED_IN]->(movie2:Movie)<-[:ACTED_IN]-(cruise:Person {name: 'Tom Cruise'})
-WHERE NOT (tom)-[:ACTED_IN]->(:Movie)<-[:ACTED_IN]-(cruise)
-RETURN tom, movie1, coActor, movie2, cruise
-
+// Hybrid with collaborative and content based filtering
+MATCH (baseUser: User { userId: '282356'})-[baseRating:RATED]->(m: Movie)
+WITH avg(baseRating.rating) AS baseAvgRating
 MATCH (u1: User { userId: '282356'})-[r1:RATED]->(m1: Movie)<-[r2:RATED]-(u2: User)-[r3:RATED]->(m2: Movie)<-[:PRODUCES]-(studio:Studio)-[:PRODUCES]->(m1)
-WHERE NOT(u1)-[:RATED]->(m2) AND m1 <> m2 AND toFloat(r1.rating) > 4 AND toFloat(r2.rating) > 4 AND toFloat(r3.rating) > 4
-RETURN u1.userId AS FirstUser, u2.userId AS SeconUser, m1.title AS CommonMovie, m2.title AS RecommendedMovie LIMIT 50
+WHERE NOT(u1)-[:RATED]->(m2) AND m1 <> m2 AND r1.rating > baseAvgRating AND r2.rating > baseAvgRating AND r3.rating > baseAvgRating
+WITH DISTINCT m2.title AS RecommendedMovie
+RETURN RecommendedMovie 
+LIMIT 10
 
 //Comando para revisar duplicados
 MATCH  (g:Director) WHERE g.director="Abel Ferrara"
