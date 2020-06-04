@@ -1,0 +1,71 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<div class="container">
+    <div class="row">
+        <div class="col-sm-8 pl-0">
+            <h1 class="mt-5">Sistemas de Recomendación - Taller 3</h1>
+        </div>
+    </div>
+
+    <div class="row">
+      <div class="col-sm-8 pl-0">
+        <h2 class="mt-1">Ratings del usuario {{ user_id }}</h2>
+      </div>
+      <div class="col-sm-4">
+        <a class="btn btn-primary pull-right" data-toggle="modal" data-target="#reviewModal" >Agregar rating</a>
+      </div>
+    </div>
+
+    <div class="row">
+        <table class="table table-striped">
+          <thead>
+            <tr>
+              <th scope="col">movieId</th>
+              <th scope="col">rating</th>
+                <th scope="col">timestamp</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for rating in ratings %}
+            <tr>
+                <td>{{rating}}</td>
+                <!-- <td>{{rating.movieId}}</td> -->
+                <!--  <td>{{rating.rating}}</td>-->
+                <!--<td>{{rating.timestamp}}</td>-->
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+    </div>
+</div>
+
+<input type="hidden" id="userId" value='{{ user_id }}' />
+
+{% endblock %}
+
+{% block js %}
+<script>
+  $("#saveRatingBtn").click(function () {
+
+    $.ajax({
+      url: '/addRating',
+      data: {
+        'user_id': $('#userId').val(),
+        'movieId': $('#fmovieId').val(),
+        'rating': $('#frating').val(),
+      },
+      dataType: 'json',
+      success: function (data) {
+        if (data.allright) {
+          $('#ratingModal').modal('hide');
+          alert("Rating agregado");
+          location.reload();
+        }
+      }
+    });
+
+  });
+</script>
+{% endblock %}

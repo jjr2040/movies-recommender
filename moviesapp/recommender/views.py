@@ -2,7 +2,7 @@ from django.shortcuts import render
 from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
 from django.http import JsonResponse
 
-from .models import User, Movie
+from .models import User, Movie, RatedRel
 from neomodel import db
 
 user_list = User.nodes.all()
@@ -38,6 +38,27 @@ def add_user(request):
     data = { 'allright': True, 'userId': new_user.userId }
     return JsonResponse(data)
 
+def ratings(request, user_id):
+
+    query = """MATCH p=(u:User)-[r:RATED]->(m:Movie) WHERE u.userId='{0}' RETURN p
+    """.format(user_id)
+
+    results, meta = db.cypher_query(query)
+
+    #ratingsList= [RatedRel.inflate(row[0]) for row in results]
+    context = {
+        'user_id': user_id,
+        'ratings': results
+    }
+    return render(request, 'user_ratings.html', context=context)
+
+def add_rating(request):
+    user_id = request.GET['user_id']
+    #User
+    #new_rating= RatedRel()
+
+    data = {'allright': True}
+    return JsonResponse(data)
 
 def recommended_movies(request, user_id):
 
