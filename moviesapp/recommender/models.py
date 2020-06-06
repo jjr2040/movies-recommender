@@ -74,6 +74,7 @@ class Writer(StructuredNode):
 class RatedRel(StructuredRel):
     movieId = StringProperty(required=True)
     rating = FloatProperty(required=True)
+    timestamp = IntegerProperty(required=True)
 
 
 class User(StructuredNode):

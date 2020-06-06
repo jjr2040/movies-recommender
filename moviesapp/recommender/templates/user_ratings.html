@@ -14,7 +14,7 @@
         <h2 class="mt-1">Ratings del usuario {{ user_id }}</h2>
       </div>
       <div class="col-sm-4">
-        <a class="btn btn-primary pull-right" data-toggle="modal" data-target="#reviewModal" >Agregar rating</a>
+        <a class="btn btn-primary pull-right" data-toggle="modal" data-target="#ratingModal" >Agregar rating</a>
       </div>
     </div>
 
@@ -30,10 +30,10 @@
           <tbody>
             {% for rating in ratings %}
             <tr>
-                <td>{{rating}}</td>
-                <!-- <td>{{rating.movieId}}</td> -->
-                <!--  <td>{{rating.rating}}</td>-->
-                <!--<td>{{rating.timestamp}}</td>-->
+                <!--<td>{{rating}}</td>-->
+                <td>{{rating.movieId}}</td>
+                <td>{{rating.rating}}</td>
+                <td>{{rating.timestamp}}</td>
             </tr>
             {% endfor %}
           </tbody>
@@ -52,7 +52,7 @@
     $.ajax({
       url: '/addRating',
       data: {
-        'user_id': $('#userId').val(),
+        'user_id': {{ user_id }},
         'movieId': $('#fmovieId').val(),
         'rating': $('#frating').val(),
       },

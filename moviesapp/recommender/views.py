@@ -1,9 +1,13 @@
+from re import split
+
 from django.shortcuts import render
 from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
 from django.http import JsonResponse
 
 from .models import User, Movie, RatedRel
 from neomodel import db
+import time
+from datetime import datetime
 
 user_list = User.nodes.all()
 
@@ -39,22 +43,36 @@ def add_user(request):
     return JsonResponse(data)
 
 def ratings(request, user_id):
-    query = """MATCH p=(u:User)-[r:RATED]->(m:Movie) WHERE u.userId='{0}' RETURN p
+    query = """MATCH p=(u:User)-[r:RATED]->(m:Movie) WHERE u.userId='{0}' RETURN r,m.movieId
     """.format(user_id)
 
     results, meta = db.cypher_query(query)
+    movies = []
+    ratingsList= [RatedRel.inflate(row[0]) for row in results]
 
-    #ratingsList= [RatedRel.inflate(row[0]) for row in results]
     context = {
         'user_id': user_id,
-        'ratings': results
+        'ratings': ratingsList
     }
     return render(request, 'user_ratings.html', context=context)
 
 def add_rating(request):
     user_id = request.GET['user_id']
-    #User
-    #new_rating= RatedRel()
+    movie_id = request.GET['movieId']
+    rating = request.GET['frating']
+
+    query = """MATCH (u:User) WHERE u.userId='{0}' RETURN u
+        """.format(user_id)
+    results, meta = db.cypher_query(query)
+
+    query2 = """MATCH (m:Movie WHERE m.MovieId='{0}' RETURN m
+            """.format(movie_id)
+    results2, meta2 = db.cypher_query(query2)
+
+    user = User.inflate(results)
+    movie = Movie.inflate(results2)
+
+    user.rated.connect(movie,{'rating':float(rating),'timestamp':int(time.mktime(datetime.now().timetuple()))})
 
     data = {'allright': True}
     return JsonResponse(data)
