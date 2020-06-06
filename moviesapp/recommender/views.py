@@ -11,14 +11,15 @@ from datetime import datetime
 
 user_list = User.nodes.all()
 
+
 def index(request):
     global user_list
     page = request.GET.get('page', 1)
 
     local_users = user_list
-    
+
     userId = request.GET.get('userId')
-    
+
     if userId:
         local_users = User.nodes.filter(userId=userId)
 
@@ -30,7 +31,7 @@ def index(request):
     except EmptyPage:
         users = paginator.page(paginator.num_pages)
 
-    return render(request, 'index.html', { 'users': users })
+    return render(request, 'index.html', {'users': users})
 
 
 def add_user(request):
@@ -39,8 +40,9 @@ def add_user(request):
     new_user.save()
 
     user_list.append(new_user)
-    data = { 'allright': True, 'userId': new_user.userId }
+    data = {'allright': True, 'userId': new_user.userId}
     return JsonResponse(data)
+
 
 def ratings(request, user_id):
     query = """MATCH p=(u:User)-[r:RATED]->(m:Movie) WHERE u.userId='{0}' RETURN r,m.movieId
@@ -48,7 +50,7 @@ def ratings(request, user_id):
 
     results, meta = db.cypher_query(query)
     movies = []
-    ratingsList= [RatedRel.inflate(row[0]) for row in results]
+    ratingsList = [RatedRel.inflate(row[0]) for row in results]
 
     context = {
         'user_id': user_id,
@@ -56,29 +58,24 @@ def ratings(request, user_id):
     }
     return render(request, 'user_ratings.html', context=context)
 
+
 def add_rating(request):
     user_id = request.GET['user_id']
     movie_id = request.GET['movieId']
-    rating = request.GET['frating']
+    rating = request.GET.get('frating')
+    user = User.nodes.get(userId=str(user_id))
+    movie = Movie.nodes.get(movieId=str(movie_id))
 
-    query = """MATCH (u:User) WHERE u.userId='{0}' RETURN u
-        """.format(user_id)
-    results, meta = db.cypher_query(query)
-
-    query2 = """MATCH (m:Movie WHERE m.MovieId='{0}' RETURN m
-            """.format(movie_id)
-    results2, meta2 = db.cypher_query(query2)
-
-    user = User.inflate(results)
-    movie = Movie.inflate(results2)
-
-    user.rated.connect(movie,{'rating':float(rating),'timestamp':int(time.mktime(datetime.now().timetuple()))})
-
+    r=user.rated.connect(movie)
+    r.movieId=str(movie_id)
+    r.rating=float(rating)
+    r.timestamp=int(time.mktime(datetime.now().timetuple()))
+    r.save()
     data = {'allright': True}
     return JsonResponse(data)
 
-def recommended_movies(request, user_id):
 
+def recommended_movies(request, user_id):
     num_ratings = get_num_ratings(user_id)
     too_few = 10
 
@@ -122,6 +119,7 @@ def recommended_movies(request, user_id):
         'recommendation_type': recommendation_type
     }
     return render(request, 'movie_recommendations.html', context=context)
+
 
 def get_num_ratings(user_id):
     q = """MATCH (u: User {{ userId: '{0}' }})-[r:RATED]->(m:Movie) return count(m)""".format(user_id)
