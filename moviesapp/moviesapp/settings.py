@@ -13,7 +13,7 @@ https://docs.djangoproject.com/en/3.0/ref/settings/
 import os
 from neomodel import config
 
-config.DATABASE_URL = 'bolt://neo4j:password@localhost:7687'  # default
+config.DATABASE_URL = 'bolt://neo4j:password@neo4j:7687'  # default
 config.ENCRYPTED_CONNECTION = False
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
