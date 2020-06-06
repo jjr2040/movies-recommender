@@ -62,7 +62,7 @@ def add_rating(request):
 def recommended_movies(request, user_id):
 
     num_ratings = get_num_ratings(user_id)
-    too_few = 5
+    too_few = 10
 
     query = ""
     recommendation_type = ""
@@ -78,17 +78,22 @@ def recommended_movies(request, user_id):
         """.format(user_id)
     elif num_ratings > 0 and num_ratings <= too_few:
         recommendation_type = "Content based"
-        print("too few ratings for collaborative filtering, content based recommendation.")
         query = """MATCH (u1: User {{ userId: '{0}'}})-[r1:RATED]->(m1: Movie)-[r2:IS_CLASSIFIED_AS]->(g:Gender)<-[r3:IS_CLASSIFIED_AS]-(m2:Movie) 
-        WHERE r1.rating>4.5
+        WHERE r1.rating > 4.5
         RETURN m2 LIMIT 10
         UNION
         MATCH (u1: User {{ userId: '{0}'}})-[r1:RATED]->(m1: Movie)<-[r2:ACTS]-(a:Actor)-[r3:ACTS]->(m2:Movie) 
-        WHERE r1.rating>4.5
+        WHERE r1.rating > 4.5
         RETURN m2 LIMIT 10
         """.format(user_id)
     else:
         recommendation_type = "Popular (Generic recommendation)"
+        query = """MATCH (u:User)-[r:RATED]->(m:Movie)-[:MADE_IN]->(:Country {country: 'United States'})
+        WITH m, count(r.rating) as countrating, avg(r.rating) as avgrating
+        WHERE avgrating > 3.5
+        RETURN m
+        ORDER BY countrating DESC
+        LIMIT 10"""
 
     results, meta = db.cypher_query(query)
 
