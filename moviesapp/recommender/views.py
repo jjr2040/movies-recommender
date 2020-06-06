@@ -39,7 +39,6 @@ def add_user(request):
     return JsonResponse(data)
 
 def ratings(request, user_id):
-
     query = """MATCH p=(u:User)-[r:RATED]->(m:Movie) WHERE u.userId='{0}' RETURN p
     """.format(user_id)
 
@@ -62,20 +61,47 @@ def add_rating(request):
 
 def recommended_movies(request, user_id):
 
-    query = """MATCH (baseUser: User {{ userId: '{0}'}})-[baseRating:RATED]->(m: Movie)
-WITH avg(baseRating.rating) AS baseAvgRating
-MATCH (u1: User {{ userId: '{0}'}})-[r1:RATED]->(m1: Movie)<-[r2:RATED]-(u2: User)-[r3:RATED]->(m2: Movie)<-[:PRODUCES]-(studio:Studio)-[:PRODUCES]->(m1)
-WHERE NOT(u1)-[:RATED]->(m2) AND m1 <> m2 AND r1.rating > baseAvgRating AND r2.rating > baseAvgRating AND r3.rating > baseAvgRating
-WITH DISTINCT m2.title AS RecommendedMovie, m2
-RETURN m2 
-LIMIT 10
-    """.format(user_id)
+    num_ratings = get_num_ratings(user_id)
+    too_few = 5
+
+    query = ""
+    recommendation_type = ""
+
+    if num_ratings > too_few:
+        recommendation_type = "Hybrid (Collaborative based + Content based)"
+        query = """MATCH (baseUser: User {{ userId: '{0}'}})-[baseRating:RATED]->(m: Movie)
+        WITH avg(baseRating.rating) AS baseAvgRating
+        MATCH (u1: User {{ userId: '{0}'}})-[r1:RATED]->(m1: Movie)<-[r2:RATED]-(u2: User)-[r3:RATED]->(m2: Movie)<-[:PRODUCES]-(studio:Studio)-[:PRODUCES]->(m1)
+        WHERE NOT(u1)-[:RATED]->(m2) AND m1 <> m2 AND r1.rating > baseAvgRating AND r2.rating > baseAvgRating AND r3.rating > baseAvgRating
+        WITH DISTINCT m2.title AS RecommendedMovie, m2
+        RETURN m2 LIMIT 10
+        """.format(user_id)
+    elif num_ratings > 0 and num_ratings <= too_few:
+        recommendation_type = "Content based"
+        print("too few ratings for collaborative filtering, content based recommendation.")
+        query = """MATCH (u1: User {{ userId: '{0}'}})-[r1:RATED]->(m1: Movie)-[r2:IS_CLASSIFIED_AS]->(g:Gender)<-[r3:IS_CLASSIFIED_AS]-(m2:Movie) 
+        WHERE r1.rating>4.5
+        RETURN m2 LIMIT 10
+        UNION
+        MATCH (u1: User {{ userId: '{0}'}})-[r1:RATED]->(m1: Movie)<-[r2:ACTS]-(a:Actor)-[r3:ACTS]->(m2:Movie) 
+        WHERE r1.rating>4.5
+        RETURN m2 LIMIT 10
+        """.format(user_id)
+    else:
+        recommendation_type = "Popular (Generic recommendation)"
 
     results, meta = db.cypher_query(query)
 
     movies = [Movie.inflate(row[0]) for row in results]
     context = {
         'user_id': user_id,
-        'movies': movies 
+        'movies': movies,
+        'recommendation_type': recommendation_type
     }
     return render(request, 'movie_recommendations.html', context=context)
+
+def get_num_ratings(user_id):
+    q = """MATCH (u: User {{ userId: '{0}' }})-[r:RATED]->(m:Movie) return count(m)""".format(user_id)
+    r, m = db.cypher_query(q)
+
+    return r[0][0]
