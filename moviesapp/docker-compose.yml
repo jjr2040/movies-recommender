@@ -26,7 +26,7 @@ services:
       NEO4J_AUTH: neo4j/password
       NEO4J_dbms_memory_pagecache_size: 2G
       # NEO4J_dbms.directories.import: /import
-      NEO4J_dbms.security.allow_csv_import_from_file_urls: true
+      NEO4J_dbms.security.allow_csv_import_from_file_urls: "true"
   # mongo:
   #   image: mongo
   #   ports:
