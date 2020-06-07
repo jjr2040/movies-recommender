@@ -155,3 +155,20 @@ MATCH ()-[r:SEES]->()
 DELETE r
 
 
+-------------------------------------------------------------------Ranking--------------------------------------------------------------------------
+//Todas, luego recomendacion
+MATCH (u1: User { userId: '282356'})-[r1:RATED]->(m1: Movie) WHERE r1.rating>4.5 WITH m1 AS movies
+MATCH (baseUser: User { userId: '282356'})-[baseRating:RATED]->(m: Movie)
+WITH avg(baseRating.rating) AS baseAvgRating
+MATCH (u1: User { userId: '282356'})-[r1:RATED]->(m1: Movie)<-[r2:RATED]-(u2: User)-[r3:RATED]->(m2: Movie)<-[:PRODUCES]-(studio:Studio)-[:PRODUCES]->(m1)
+WHERE (u1)-[:RATED]->(m2) AND m1 <> m2 AND r1.rating > baseAvgRating AND r2.rating > baseAvgRating AND r3.rating > baseAvgRating
+WITH DISTINCT m2.title AS RecommendedMovie
+RETURN RecommendedMovie 
+
+//Recomendacion, luego todas
+MATCH (baseUser: User { userId: '282356'})-[baseRating:RATED]->(m: Movie)
+WITH avg(baseRating.rating) AS baseAvgRating
+MATCH (u1: User { userId: '282356'})-[r1:RATED]->(m1: Movie)<-[r2:RATED]-(u2: User)-[r3:RATED]->(m2: Movie)<-[:PRODUCES]-(studio:Studio)-[:PRODUCES]->(m1)
+WHERE (u1)-[:RATED]->(m2) AND m1 <> m2 AND r1.rating > baseAvgRating AND r2.rating > baseAvgRating AND r3.rating > baseAvgRating
+WITH DISTINCT m2.title AS RecommendedMovie
+MATCH (u1: User { userId: '282356'})-[r1:RATED]->(m1: Movie) WHERE r1.rating>4 AND m1.title=RecommendedMovie RETURN m1.title
