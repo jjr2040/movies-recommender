@@ -99,11 +99,11 @@ def recommended_movies(request, user_id):
         recommendation_type = "Content based"
         query = """MATCH (u1: User {{ userId: '{0}'}})-[r1:RATED]->(m1: Movie)-[r2:IS_CLASSIFIED_AS]->(g:Gender)<-[r3:IS_CLASSIFIED_AS]-(m2:Movie) 
         WHERE r1.rating > 4.5
-        RETURN m2 LIMIT 10
+        RETURN m2 LIMIT 5
         UNION
         MATCH (u1: User {{ userId: '{0}'}})-[r1:RATED]->(m1: Movie)<-[r2:ACTS]-(a:Actor)-[r3:ACTS]->(m2:Movie) 
         WHERE r1.rating > 4.5
-        RETURN m2 LIMIT 10
+        RETURN m2 LIMIT 5
         """.format(user_id)
     else:
         recommendation_type = "Popular (Generic recommendation)"
