@@ -69,14 +69,11 @@ def ratings(request, user_id):
 def add_rating(request):
     user_id = request.GET['user_id']
     movie_id = request.GET['movieId']
-    rating = request.GET.get('frating')
+    rating = request.GET.get('rating')
     user = User.nodes.get(userId=str(user_id))
     movie = Movie.nodes.get(movieId=str(movie_id))
 
-    r=user.rated.connect(movie)
-    r.movieId=str(movie_id)
-    r.rating=float(rating)
-    r.timestamp=int(time.mktime(datetime.now().timetuple()))
+    r = user.rated.connect(movie, {'movieId': str(movie_id), 'rating': float(rating), 'timestamp': int(time.mktime(datetime.now().timetuple()))})
     r.save()
     data = {'allright': True}
     return JsonResponse(data)
