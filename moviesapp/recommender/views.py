@@ -93,7 +93,7 @@ def recommended_movies(request, user_id):
         MATCH (u1: User {{ userId: '{0}'}})-[r1:RATED]->(m1: Movie)<-[r2:RATED]-(u2: User)-[r3:RATED]->(m2: Movie)<-[:PRODUCES]-(studio:Studio)-[:PRODUCES]->(m1)
         WHERE NOT(u1)-[:RATED]->(m2) AND m1 <> m2 AND r1.rating > baseAvgRating AND r2.rating > baseAvgRating AND r3.rating > baseAvgRating
         WITH DISTINCT m2.title AS RecommendedMovie, m2
-        RETURN m2 LIMIT 5
+        RETURN m2 LIMIT 10
         """.format(user_id)
     elif num_ratings > 0 and num_ratings <= too_few:
         recommendation_type = "Content based"
