@@ -45,16 +45,23 @@ def add_user(request):
 
 
 def ratings(request, user_id):
-    query = """MATCH p=(u:User)-[r:RATED]->(m:Movie) WHERE u.userId='{0}' RETURN r,m.movieId
+    query = """MATCH p=(u:User)-[r:RATED]->(m:Movie) WHERE u.userId='{0}' RETURN u,r,m
     """.format(user_id)
 
     results, meta = db.cypher_query(query)
-    movies = []
-    ratingsList = [RatedRel.inflate(row[0]) for row in results]
+    rating_movies_relations = []
+    for row in results:
+        rating_movies_relations.append({
+            'movie_id': Movie.inflate(row[2]).movieId,
+            'title': Movie.inflate(row[2]).title,
+            'rating': RatedRel.inflate(row[1]).rating,
+            'timestamp': RatedRel.inflate(row[1]).timestamp
+        })
 
+    print(rating_movies_relations)
     context = {
         'user_id': user_id,
-        'ratings': ratingsList
+        'rating_movies_relations': rating_movies_relations
     }
     return render(request, 'user_ratings.html', context=context)
 

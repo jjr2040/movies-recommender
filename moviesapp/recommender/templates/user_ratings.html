@@ -23,17 +23,18 @@
           <thead>
             <tr>
               <th scope="col">movieId</th>
+              <th scope="col">title</th>
               <th scope="col">rating</th>
                 <th scope="col">timestamp</th>
             </tr>
           </thead>
           <tbody>
-            {% for rating in ratings %}
+            {% for row in rating_movies_relations %}
             <tr>
-                <!--<td>{{rating}}</td>-->
-                <td>{{rating.movieId}}</td>
-                <td>{{rating.rating}}</td>
-                <td>{{rating.timestamp}}</td>
+                <td>{{row.movie_id}}</td>
+                <td>{{row.title}}</td>
+                <td>{{row.rating}}</td>
+                <td>{{row.timestamp}}</td>
             </tr>
             {% endfor %}
           </tbody>
