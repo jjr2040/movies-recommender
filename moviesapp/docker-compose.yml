@@ -22,6 +22,7 @@ services:
       - ./neo4j/import:/var/lib/neo4j/import
       - ./neo4j/logs:/logs
       - ./neo4j/plugins:/plugins
+      - ./neo4j/backups:/backups
       # - ./neo4j/conf:/conf
     environment: 
       NEO4J_AUTH: neo4j/password
